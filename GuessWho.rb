@@ -1,10 +1,5 @@
 class Suspect
 	attr_accessor :name, :hair, :skin_color, :gender, :eye_color
-	attr_reader :suspect_1, :suspect_2, :suspect_3, :suspect_4, :suspect_5
-	attr_reader :suspect_6, :suspect_7, :suspect_8, :suspect_9, :suspect_10
-	attr_reader :suspect_11, :suspect_12, :suspect_13, :suspect_14, :suspect_15, :culprit
-	attr_reader :suspect_16, :suspect_17, :suspect_18, :suspect_19, :suspect_20, :suspect_21
-	attr_accessor :suspect_list
 
 	def initialize(name, hair, skin_color, gender, eye_color)
 		@name = name
@@ -13,7 +8,23 @@ class Suspect
 		@gender = gender
 		@eye_color = eye_color
 	
+	end
 
+end
+
+
+
+class GuessWho
+	attr_accessor :count
+	attr_reader :suspect_1, :suspect_2, :suspect_3, :suspect_4, :suspect_5
+	attr_reader :suspect_6, :suspect_7, :suspect_8, :suspect_9, :suspect_10
+	attr_reader :suspect_11, :suspect_12, :suspect_13, :suspect_14, :suspect_15, :culprit
+	attr_reader :suspect_16, :suspect_17, :suspect_18, :suspect_19, :suspect_20, :suspect_21
+	attr_accessor :suspect_list
+	
+
+	def initialize
+		@count = 0
 		@suspect_1 = Suspect.new("Rachel", "auburn", "black", "girl", "brown")
 		@suspect_2 = Suspect.new("Mac", "black", "white", "boy", "brown")
 		@suspect_3 = Suspect.new("Nick", "brown", "white", "boy", "blue")
@@ -37,30 +48,15 @@ class Suspect
 		@suspect_21 = Suspect.new("Ursula", "auburn", "white", "girl", "green")
 		@suspect_list = [@suspect_21, @suspect_20, @suspect_19, @suspect_18, @suspect_17, @suspect_16, @suspect_15, @suspect_14, @suspect_13, @suspect_12, @suspect_11,
 			@suspect_10, @suspect_9, @suspect_8, @suspect_7, @suspect_6, @suspect_5, @suspect_4, @suspect_3, @suspect_2, @suspect_1]
-		@culprit = @suspect_list.sample
-	end
-
-end
-
-
-
-class GuessWho
-	attr_accessor :suspect, :count
-	
-
-	def initialize
-		@count = 0
-		@suspect = Suspect.new
-	
-		show_suspects
-		
+		@culprit = @suspect_list.sample	
 	end
 
 
 
 	def show_suspects
 		puts "Here's a list of the suspects:"
-		suspect.suspect_list.each do |suspect|
+		puts"|Name|Gender|Skin Color|Eye Color|Hair"
+		suspect_list.each do |suspect|
 			puts "#{suspect.name}, #{suspect.gender}, #{suspect.skin_color}, #{suspect.eye_color}, #{suspect.hair}"
 		end
 		winning_guess
@@ -75,38 +71,66 @@ class GuessWho
 			puts "Let a rip"
 			answer = gets.chomp.capitalize
 			case
-			when answer == suspect.culprit.name
+			when answer == culprit.name
 				puts "Damn! Well done. Game over"
 				exit
 			else 
+				self.count = count + 1
 				puts "Long shot. Sorry mate."
-				count += 1
+				whats_the_count
 			end
 		else
+			
 			puts "Ok then, moving on."
 		end
 	end
+
+	def whats_the_count
+
+		if count == 1 
+			puts "You only have two more guesses"
+		elsif count == 2
+				puts "Uh oh, only one more guess!"
+		else 
+			puts "You're out of guesses! Better guess a name"
+			answer = gets.chomp.capitalize
+			case 
+			when answer == culprit.name
+				puts "Oh ya! Well done!"
+				exit
+			else 
+				puts "Game over yo, try again. The culprit was #{culprit.name}"
+				
+			end
+		end
+	end
+				
 	
 
 	def game
 
 		
 
-			puts "Let's play a game. It's called Guess Who. Want to play? Say yes or no."
+		puts "Let's play a game. It's called Guess Who. Want to play? Say yes or no."
 
-			answer = gets.chomp
+		answer = gets.chomp
+
+		if answer == "yes"
+			puts "Ok fun! I will provide you a list of suspects complete with details about their appearance. You have three guesses to find out who the culprit is."
+			puts "Choose an attribute from the following list: Hair, Name, Gender, Skin Color, Eye Color. Then guess the respective color of the attribute or gender of the culprit, or even the name if you're feeling lucky."
+			
+			puts "ok? yes or no?"
+			answer = gets.chomp.downcase
 
 			if answer == "yes"
-				puts "Ok fun! I will provide you a list of suspects complete with details about their appearance. You have three guesses to find out who the culprit is."
-				puts "Choose an attribute from the following list: Hair, Name, Gender, Skin Color, Eye Color. Then guess the respective color of the attribute or gender of the culprit, or even the name if you're feeling lucky."
-				
+
 				puts show_suspects
 
 				while count < 3
 
 					puts "Choose an attribute"
 
-					attribute = gets.chomp.capitalize
+					attribute = gets.chomp.split.map(&:capitalize).join(' ')
 
 					
 
@@ -114,95 +138,107 @@ class GuessWho
 						puts "Guess a color: Black, Brown, Blonde, Auburn"
 						answer = gets.chomp.downcase
 						case 
-						 when answer == suspect.culprit.hair
-						 	self.count += 1
-						 	puts "Well done, the culprit does have #{answer} hair. Here's an updated list for your next guess, #{3 - count} more guesses!"
-						 	puts suspect.suspect_list.delete_if {|x| x.hair != suspect.culprit.hair}.map {|x| x.name && x.hair}
+						 when answer == culprit.hair
+						 	self.count = count + 1
+						 	puts "Well done, the culprit does have #{answer} hair. Here's an updated list of remaining suspects for your next guess:"
+						 	suspect_list.delete_if {|x| x.hair != culprit.hair}
+						 	puts suspect_list.map {|x| x.name}
 						 	
 						 	  
 						 else
-						 	self.count += 1
-						 	puts "Nope. Sorry. Here's an updated list for your next guess, #{3 - count} more guesses!" 
-						 	puts suspect.suspect_list.delete_if {|x| x.hair != suspect.culprit.hair}.map {|x| x.name && x.hair}
+						 	self.count = count + 1
+						 	puts "Nope. Sorry. Here's an updated list of remaining suspects for your next guess:" 
+						 	suspect_list.delete_if {|x| x.hair == answer}
+						 	puts suspect_list.map {|x| x.name}
+						 	
 						 end
 
-						 
-
-						 puts "Choose an attribute again" 
+						 whats_the_count
 						
 					end
+
+					
 
 					if attribute == "Eye Color"
 						puts "Guess a color: Blue, Green, Brown"
 						answer = gets.chomp.downcase
 						case 
-						when answer == suspect.culprit.eye_color
-							puts "Well done, the culprit does have #{answer} eyes. Here's an updated list for your next guess, #{3 - count} more guesses!"  
-							puts suspect_list.delete_if {|x| x.eye_color != suspect.culprit.eye_color}.map {|x| x.name && x.eye_color}
-							count += 1
+						when answer == culprit.eye_color
+							self.count = count + 1
+							puts "Well done, the culprit does have #{answer} eyes. Here's an updated list of remaining suspects for your next guess:"
+							puts suspect_list.map {|x| x.name}
+							
 							
 						else
-							puts "Nope. Sorry. Here's an updated list for your next guess, #{3 - count} more guesses!"  
-							puts suspect.suspect_list.delete_if {|x| x.eye_color != suspect.culprit.eye_color}.map {|x| x.name && x.eye_color}
-							count += 1
+							self.count = count + 1
+							puts "Nope. Sorry. Here's an updated list of remaining suspects for your next guess:"  
+							suspect_list.delete_if {|x| x.eye_color == answer}
+						 	puts suspect_list.map {|x| x.name}
+						 	
 						end
-						
 
-						puts "choose another attribute"
-
+						whats_the_count
+					
 					end
 
 					if attribute == "Gender"
 						puts "Guess a gender: Boy or Girl?"
 						answer = gets.chomp.downcase
 						case 
-						when answer == suspect.culprit.gender
-							puts "Well done, the culprit is a #{answer}. Here's an updated list for your next guess, #{3 - count} more guesses!" 
-							puts suspect.suspect_list.delete_if {|x| x.gender != suspect.culprit.gender}.map {|x| x.name && x.gender}
-							count += 1
+						when answer == culprit.gender
+							self.count = count + 1
+							puts "Well done, the culprit is a #{answer}. Here's an updated list of remaining suspects for your next guess:"
+							suspect_list.delete_if {|x| x.gender != culprit.gender}
+							puts suspect_list.map {|x| x.name}
+							
 							
 						else
-							puts "Nope. Sorry. Here's an updated list for your next guess, #{3 - count} more guesses!"  
-							puts suspect.suspect_list.delete_if {|x| x.gender != suspect.culprit.gender}.map {|x| x.name && x.gender}
-							count += 1
+							self.count = count + 1
+							puts "Nope. Sorry. Here's an updated list of remaining suspects for your next guess:"
+							suspect_list.delete_if {|x| x.gender == answer}
+						 	puts suspect_list.map {|x| x.name}
 							
 						end
 
-						
+						whats_the_count
 
-						puts "choose another attribute"
-						
 					end
 
 					if attribute == "Skin Color"
 						puts "Guess a skin color: Black or White?"
 						answer = gets.chomp.downcase
 						case 
-						when answer == suspect.culprit.skin_color
-							puts "Well done, the culprit is #{answer}. Here's an updated list for your next guess, #{3 - count} more guesses!" 
-							puts suspect_list.delete_if {|x| x.skin_color != suspect.culprit.skin_color}.map {|x| x.name && x.skin_color}
-							count += 1
+						when answer == culprit.skin_color
+							self.count = count + 1
+							puts "Well done, the culprit is #{answer}. Here's an updated list of remaining suspects for your next guess:"
+							suspect_list.delete_if {|x| x.skin_color != culprit.skin_color}
+							puts suspect_list.map {|x| x.name}
+							
 							
 						else
-							puts "Nope. Sorry. Here's an updated list for your next guess, #{3 - count} more guesses!" 
-							puts suspect.suspect_list.delete_if {|x| x.skin_color != suspect.culprit.skin_color}.map {|x| x.name && x.skin_color}
-							count += 1
+							self.count = count + 1
+							puts "Nope. Sorry. Here's an updated list of remaining suspects for your next guess:"
+							suspect_list.delete_if {|x| x.skin_color == answer}
+						 	puts suspect_list.map {|x| x.name}
 							
 						end
+						whats_the_count
 						
 					end
-					break if count == 3
-					puts "Game over! No more guesses!"
-					exit
-				end
-		
-		end
+				end # end of while loop
+						
+			end # end of "ok? == yes"
+
+		end # end of "do you wana play"
 
 	end # end of game method	
-
 end # end of GuessWho class
 
 new_game = GuessWho.new
+
+new_game.game
+
+
 
 
 
