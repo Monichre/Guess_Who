@@ -92,6 +92,7 @@ class GuessWho
 		elsif count == 2
 				puts "Uh oh, only one more guess!"
 		else 
+			
 			puts "You're out of guesses! Better guess a name"
 			answer = gets.chomp.capitalize
 			case 
@@ -109,15 +110,14 @@ class GuessWho
 
 	def game
 
-		
+		puts "Let's play a game. It's called Guess Who. Want to play? Yes or no?"
 
-		puts "Let's play a game. It's called Guess Who. Want to play? Say yes or no."
-
-		answer = gets.chomp
+		answer = gets.chomp.downcase
 
 		if answer == "yes"
 			puts "Ok fun! I will provide you a list of suspects complete with details about their appearance. You have three guesses to find out who the culprit is."
 			puts "Choose an attribute from the following list: Hair, Name, Gender, Skin Color, Eye Color. Then guess the respective color of the attribute or gender of the culprit, or even the name if you're feeling lucky."
+			puts "If at any point, you'd like to guess a name, just type name!"
 			
 			puts "ok? yes or no?"
 			answer = gets.chomp.downcase
@@ -132,7 +132,23 @@ class GuessWho
 
 					attribute = gets.chomp.split.map(&:capitalize).join(' ')
 
+					if attribute == "Name"
+						puts "ok choose a name"
+						answer = gets.chomp.capitalize
+						if answer != culprit.name
+							self.count = count + 1
+							suspect_list.delete(answer)
+							puts "Nice try bud. Here's an updated list of remaining suspects for your next guess:"
+							puts suspect_list.map {|x| x.name}
+							
+							
+						else
+							puts "Way to go! The culprit was #{culprit.name}"
+							exit
 					
+						end
+						whats_the_count
+					end					
 
 					if attribute == "Hair"
 						puts "Guess a color: Black, Brown, Blonde, Auburn"
@@ -158,7 +174,6 @@ class GuessWho
 					end
 
 					
-
 					if attribute == "Eye Color"
 						puts "Guess a color: Blue, Green, Brown"
 						answer = gets.chomp.downcase
@@ -213,7 +228,6 @@ class GuessWho
 							puts "Well done, the culprit is #{answer}. Here's an updated list of remaining suspects for your next guess:"
 							suspect_list.delete_if {|x| x.skin_color != culprit.skin_color}
 							puts suspect_list.map {|x| x.name}
-							
 							
 						else
 							self.count = count + 1
